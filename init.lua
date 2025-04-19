@@ -1249,7 +1249,7 @@ require('lazy').setup({
           theme = 'auto',
           component_separators = { left = '', right = '' },
           section_separators = { left = '', right = '' },
-          disabled_filetypes = { 'aerial' },
+          disabled_filetypes = { 'NvimTree', 'aerial' },
           ignore_focus = {},
           always_divide_middle = true,
           always_show_tabline = true,
@@ -1275,7 +1275,7 @@ require('lazy').setup({
         tabline = {},
         winbar = {},
         inactive_winbar = {},
-        extensions = { 'nvim-tree' },
+        extensions = {},
       }
     end,
   },
