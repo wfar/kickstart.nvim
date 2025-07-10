@@ -737,7 +737,19 @@ require('lazy').setup({
           settings = {
             pylsp = {
               plugins = {
-                pycodestyle = { enabled = false },
+                -- flake8 = {
+                --   enabled = false,
+                --   maxLineLength = 120,
+                -- },
+                mypy = {
+                  strict = true,
+                },
+                pycodestyle = {
+                  maxLineLength = 120,
+                },
+                -- pyflakes = {
+                --   enabled = false,
+                -- },
               },
             },
           },
@@ -1110,6 +1122,34 @@ require('lazy').setup({
     end,
   },
 
+  -- docstring generator
+  {
+    'danymat/neogen',
+    -- Uncomment next line if you want to follow only stable versions
+    -- version = "*"a
+    config = function()
+      require('neogen').setup {
+        enabled = true,
+        languages = {
+          python = {
+            template = {
+              annotation_convention = 'google_docstrings',
+            },
+          },
+        },
+      }
+
+      -- set up keymaps for doc gen
+      vim.keymap.set('n', '<leader>nf', ":lua require('neogen').generate()<CR>", { desc = 'Generate docstring for function', noremap = true, silent = true })
+      vim.keymap.set(
+        'n',
+        '<leader>nc',
+        ":lua require('neogen').generate({ type = 'class' })<CR>",
+        { desc = 'Generate docstring for class', noremap = true, silent = true }
+      )
+    end,
+  },
+
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1168,8 +1208,16 @@ require('lazy').setup({
     end,
   },
 
-  { 'sindrets/diffview.nvim' },
+  {
+    'sindrets/diffview.nvim',
+    config = function()
+      require('diffview').setup {
+        vim.opt.fillchars:append { diff = '╱' }, -- change empty diff space from ---- to ////
+      }
+    end,
+  },
 
+  -- TODO: Not working with Ghostty terminal! Fix it.
   {
     'rasulomaroff/cursor.nvim',
     event = 'VeryLazy',
