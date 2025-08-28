@@ -407,6 +407,14 @@ require('lazy').setup({
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+
+      -- Add telescope live grep args extension for better live grep filtering.
+      {
+        'nvim-telescope/telescope-live-grep-args.nvim',
+        -- This will not install any breaking changes.
+        -- For major updates, this must be adjusted manually.
+        version = '^1.0.0',
+      },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -455,6 +463,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'live_grep_args')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -468,6 +477,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      -- custom bindings
+      vim.keymap.set('n', '<leader>sa', ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>", { desc = '[S]earch by Grep with [A]rgs' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -1222,6 +1234,14 @@ require('lazy').setup({
       require('diffview').setup {
         vim.opt.fillchars:append { diff = '╱' }, -- change empty diff space from ---- to ////
       }
+
+      vim.keymap.set('n', '<leader>tv', function()
+        if next(require('diffview.lib').views) == nil then
+          vim.cmd 'DiffviewOpen'
+        else
+          vim.cmd 'DiffviewClose'
+        end
+      end, { desc = 'Toggle diffview' })
     end,
   },
 
@@ -1245,6 +1265,57 @@ require('lazy').setup({
       }
     end,
   },
+
+  -- Add typescript tools for better ts tooling
+  -- {
+  --   'pmizio/typescript-tools.nvim',
+  --   dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+  --   opts = {},
+  -- },
+
+  -- {
+  --   'olimorris/codecompanion.nvim',
+  --   opts = {
+  --     adapters = {
+  --       ollama = function()
+  --         return require('codecompanion.adapters').extend('ollama', {
+  --           schema = {
+  --             model = {
+  --               default = 'mistral:7b',
+  --             },
+  --             num_ctx = {
+  --               default = 20000,
+  --             },
+  --           },
+  --         })
+  --       end,
+  --     },
+  --   },
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim',
+  --     'nvim-treesitter/nvim-treesitter',
+  --   },
+  --   config = function()
+  --     require('codecompanion').setup {
+  --       strategies = {
+  --         chat = {
+  --           adapter = 'ollama',
+  --         },
+  --         inline = {
+  --           adapter = 'ollama',
+  --         },
+  --         cmd = {
+  --           adapter = 'ollama',
+  --         },
+  --       },
+  --     }
+  --   end,
+  -- },
+  --
+  -- {
+  --   'MeanderingProgrammer/render-markdown.nvim',
+  --   ft = { 'markdown', 'codecompanion' },
+  -- },
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
