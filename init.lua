@@ -735,7 +735,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
+        ts_ls = {},
         --
 
         lua_ls = {
@@ -1225,6 +1225,8 @@ require('lazy').setup({
     },
     config = function()
       require('nvim-tree').setup {}
+      -- Add Nvim Tree binding to toggle tree on/off
+      vim.keymap.set('n', '<leader>tt', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle tree' })
     end,
   },
 
@@ -1312,10 +1314,10 @@ require('lazy').setup({
   --   end,
   -- },
   --
-  -- {
-  --   'MeanderingProgrammer/render-markdown.nvim',
-  --   ft = { 'markdown', 'codecompanion' },
-  -- },
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    ft = { 'markdown' }, -- 'codecompanion' },
+  },
 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
