@@ -373,6 +373,7 @@ require('lazy').setup({
       spec = {
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>d', group = '[D]ebug' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
@@ -726,8 +727,21 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        -- gopls = {},
-        -- pyright = {},
+        gopls = {},
+        pyright = {
+          settings = {
+            pyright = {
+              -- Using Ruff's import organizer
+              disableOrganizeImports = true,
+            },
+            python = {
+              analysis = {
+                -- Ignore all files for analysis to exclusively use Ruff for linting
+                ignore = { '*' },
+              },
+            },
+          },
+        },
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -753,28 +767,42 @@ require('lazy').setup({
           },
         },
 
-        pylsp = {
-          settings = {
-            pylsp = {
-              plugins = {
-                -- flake8 = {
-                --   enabled = false,
-                --   maxLineLength = 120,
-                -- },
-                mypy = {
-                  strict = true,
-                },
-                pycodestyle = {
-                  maxLineLength = 120,
-                },
-                -- pyflakes = {
-                --   enabled = false,
-                -- },
-              },
-            },
+        ruff = {
+          init_options = {
+            settings = {},
           },
         },
+
+        -- pylsp = {
+        --   settings = {
+        --     pylsp = {
+        --       plugins = {
+        --         flake8 = {
+        --           enabled = false,
+        --         },
+        --         pyflakes = {
+        --           enabled = false,
+        --         },
+        --       },
+        --     },
+        --   },
+        -- },
       }
+
+      vim.api.nvim_create_autocmd('LspAttach', {
+        group = vim.api.nvim_create_augroup('lsp_attach_disable_ruff_hover', { clear = true }),
+        callback = function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          if client == nil then
+            return
+          end
+          if client.name == 'ruff' then
+            -- Disable hover in favor of Pyright
+            client.server_capabilities.hoverProvider = false
+          end
+        end,
+        desc = 'LSP: Disable hover capability from Ruff',
+      })
 
       -- Ensure the servers and tools above are installed
       --
@@ -1131,6 +1159,28 @@ require('lazy').setup({
     },
   },
 
+  -- add neoscroll for smooth scrolling
+  {
+    'karb94/neoscroll.nvim',
+    opts = {
+      -- All these keys will be mapped to their corresponding default scrolling animation
+      mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>', '<C-y>', '<C-e>', 'zt', 'zz', 'zb' },
+      hide_cursor = true, -- Hide cursor while scrolling
+      stop_eof = true, -- Stop at <EOF> when scrolling downwards
+      respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+      cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+      duration_multiplier = 1.0, -- Global duration multiplier
+      easing = 'linear', -- Default easing function
+      pre_hook = nil, -- Function to run before the scrolling animation starts
+      post_hook = nil, -- Function to run after the scrolling animation ends
+      performance_mode = false, -- Disable "Performance Mode" on all buffers.
+      ignored_events = { -- Events ignored while scrolling
+        'WinScrolled',
+        'CursorMoved',
+      },
+    },
+  },
+
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -1160,10 +1210,11 @@ require('lazy').setup({
       }
 
       -- set up keymaps for doc gen
-      vim.keymap.set('n', '<leader>nf', ":lua require('neogen').generate()<CR>", { desc = 'Generate docstring for function', noremap = true, silent = true })
+      vim.keymap.set('n', '<leader>tn', '', { desc = 'Neogen' })
+      vim.keymap.set('n', '<leader>tnf', ":lua require('neogen').generate()<CR>", { desc = 'Generate docstring for function', noremap = true, silent = true })
       vim.keymap.set(
         'n',
-        '<leader>nc',
+        '<leader>tnc',
         ":lua require('neogen').generate({ type = 'class' })<CR>",
         { desc = 'Generate docstring for class', noremap = true, silent = true }
       )
@@ -1226,7 +1277,7 @@ require('lazy').setup({
     config = function()
       require('nvim-tree').setup {}
       -- Add Nvim Tree binding to toggle tree on/off
-      vim.keymap.set('n', '<leader>tt', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle tree' })
+      vim.keymap.set('n', '<leader>tt', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle nvim tree' })
     end,
   },
 
@@ -1406,6 +1457,160 @@ require('lazy').setup({
         inactive_winbar = {},
         extensions = {},
       }
+    end,
+  },
+
+  -- add navimarks for better marks
+  {
+    'zongben/navimark.nvim',
+    dependencies = {
+      'nvim-telescope/telescope.nvim',
+      'nvim-lua/plenary.nvim',
+    },
+    config = function()
+      require('navimark').setup {
+        --set "" to disable keymapping
+        keymap = {
+          base = {
+            mark_toggle = '<leader>mm',
+            mark_add = '<leader>ma',
+            mark_add_with_title = '<leader>mt',
+            mark_remove = '<leader>mr',
+
+            -- this only goes to the next/previous mark in the same file
+            goto_next_mark = ']m',
+            goto_prev_mark = '[m',
+
+            open_mark_picker = '',
+          },
+          telescope = {
+            n = {
+              delete_mark = 'd',
+              clear_marks = 'c',
+              set_mark_title = 't',
+              next_stack = '<Tab>',
+              prev_stack = '<S-Tab>',
+              new_stack = 'N',
+              rename_stack = 'R',
+              delete_stack = 'D',
+              -- open all marked files in current stack
+              open_all_marked_files = '<C-o>',
+            },
+          },
+        },
+        sign = {
+          text = '',
+          color = '#FF0000',
+          --options: above || eol || eol_right_align || right_align || none
+          -- If set to 'none', you can still assign a title to a mark.
+          -- The title will only appear in Telescope but will not be shown as virt_text in the editor.
+          title_position = 'above',
+        },
+        --set to true to persist stacks and marks
+        persist = true,
+
+        --options: manual || auto
+        --auto: When the cwd changes, if a stack has the same root_dir as the cwd, that stack will be loaded automatically
+        --manual: manage stacks manually
+        stack_mode = 'auto',
+      }
+
+      local stack = require 'navimark.stack'
+      local tele = require 'navimark.tele'
+
+      -- Custom keybindings for navimarks
+      vim.keymap.set('n', '<leader>sm', tele.open_mark_picker, { desc = '[S]earch [M]arks' })
+      vim.keymap.set('n', '<leader>m', '', { desc = '[M]arks (Navimarks)' })
+      vim.keymap.set('n', '<leader>mm', stack.mark_toggle, { desc = 'Toggle mark' })
+      vim.keymap.set('n', '<leader>ma', stack.mark_add, { desc = 'Add mark' })
+      vim.keymap.set('n', '<leader>mt', stack.mark_add_with_title, { desc = 'Add mark with title' })
+      vim.keymap.set('n', '<leader>mr', stack.mark_remove, { desc = 'Remove mark' })
+    end,
+  },
+
+  -- add debugger
+  {
+    'mfussenegger/nvim-dap',
+    dependencies = {
+      'nvim-neotest/nvim-nio',
+      'rcarriga/nvim-dap-ui',
+      'mfussenegger/nvim-dap-python',
+      'theHamsta/nvim-dap-virtual-text',
+    },
+    config = function()
+      local dap = require 'dap'
+      local dapui = require 'dapui'
+      local dap_python = require 'dap-python'
+
+      require('dapui').setup {}
+      require('nvim-dap-virtual-text').setup {
+        commented = true, -- Show virtual text alongside comment
+      }
+
+      dap_python.setup 'python3'
+
+      vim.fn.sign_define('DapBreakpoint', {
+        text = '',
+        texthl = 'DiagnosticSignError',
+        linehl = '',
+        numhl = '',
+      })
+
+      vim.fn.sign_define('DapBreakpointRejected', {
+        text = '', -- or "❌"
+        texthl = 'DiagnosticSignError',
+        linehl = '',
+        numhl = '',
+      })
+
+      vim.fn.sign_define('DapStopped', {
+        text = '', -- or "→"
+        texthl = 'DiagnosticSignWarn',
+        linehl = 'Visual',
+        numhl = 'DiagnosticSignWarn',
+      })
+
+      -- Automatically open/close DAP UI
+      dap.listeners.after.event_initialized['dapui_config'] = function()
+        dapui.open()
+      end
+
+      -- Key bindings for debugger --
+
+      -- Toggle breakpoint
+      vim.keymap.set('n', '<leader>db', function()
+        dap.toggle_breakpoint()
+      end, { desc = 'Toggle breakpoint', noremap = true, silent = true })
+
+      -- Continue / Start
+      vim.keymap.set('n', '<leader>dc', function()
+        dap.continue()
+      end, { desc = 'Continue', noremap = true, silent = true })
+
+      -- Step Over
+      vim.keymap.set('n', '<leader>do', function()
+        dap.step_over()
+      end, { desc = 'Step over', noremap = true, silent = true })
+
+      -- Step Into
+      vim.keymap.set('n', '<leader>di', function()
+        dap.step_into()
+      end, { desc = 'Step into', noremap = true, silent = true })
+
+      -- Step Out
+      vim.keymap.set('n', '<leader>dO', function()
+        dap.step_out()
+      end, { desc = 'Step out', noremap = true, silent = true })
+
+      -- Terminate debugging
+      vim.keymap.set('n', '<leader>dq', function()
+        require('dap').terminate()
+      end, { desc = 'Terminate', noremap = true, silent = true })
+
+      -- Toggle DAP UI
+      vim.keymap.set('n', '<leader>du', function()
+        dapui.toggle()
+      end, { desc = 'Toggle UI', noremap = true, silent = true })
     end,
   },
 
