@@ -416,6 +416,9 @@ require('lazy').setup({
         -- For major updates, this must be adjusted manually.
         version = '^1.0.0',
       },
+
+      -- add cmdline plugin  using telescope
+      'jonarrien/telescope-cmdline.nvim',
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -465,6 +468,7 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
       pcall(require('telescope').load_extension, 'live_grep_args')
+      pcall(require('telescope').load_extension 'cmdline')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -481,6 +485,7 @@ require('lazy').setup({
 
       -- custom bindings
       vim.keymap.set('n', '<leader>sa', ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>", { desc = '[S]earch by Grep with [A]rgs' })
+      vim.keymap.set('n', 'Q', '<cmd>Telescope cmdline<cr>', { desc = 'Cmdline' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
