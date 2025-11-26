@@ -1079,17 +1079,17 @@ require('lazy').setup({
         mouse_delay = 1000,
       }
       -- Setup keymaps
-      vim.keymap.set('n', 'K', require('hover').hover, { desc = 'hover.nvim' })
-      vim.keymap.set('n', 'gK', require('hover').hover_select, { desc = 'hover.nvim (select)' })
+      vim.keymap.set('n', 'K', require('hover').open, { desc = 'hover.nvim' })
+      vim.keymap.set('n', 'gK', require('hover').select, { desc = 'hover.nvim (select)' })
       vim.keymap.set('n', '<C-p>', function()
-        require('hover').hover_switch 'previous'
+        require('hover').switch 'previous'
       end, { desc = 'hover.nvim (previous source)' })
       vim.keymap.set('n', '<C-n>', function()
-        require('hover').hover_switch 'next'
+        require('hover').switch 'next'
       end, { desc = 'hover.nvim (next source)' })
 
       -- Mouse support
-      vim.keymap.set('n', '<MouseMove>', require('hover').hover_mouse, { desc = 'hover.nvim (mouse)' })
+      vim.keymap.set('n', '<MouseMove>', require('hover').mouse, { desc = 'hover.nvim (mouse)' })
       vim.o.mousemoveevent = true
     end,
   },
@@ -1280,7 +1280,13 @@ require('lazy').setup({
       'nvim-tree/nvim-web-devicons',
     },
     config = function()
-      require('nvim-tree').setup {}
+      require('nvim-tree').setup {
+        renderer = {
+          indent_markers = {
+            enable = true,
+          },
+        },
+      }
       -- Add Nvim Tree binding to toggle tree on/off
       vim.keymap.set('n', '<leader>tt', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle nvim tree' })
     end,
