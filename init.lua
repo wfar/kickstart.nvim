@@ -882,6 +882,7 @@ require('lazy').setup({
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        -- toml = { 'pyproject-fmt' },
       },
     },
   },
@@ -1130,6 +1131,9 @@ require('lazy').setup({
           display_mode = 'border', -- changes csv outline
         },
       }
+
+      -- set toggle csv view keymap
+      vim.keymap.set('n', '<leader>tc', '<cmd>CsvViewToggle<CR>', { desc = 'Toggle csv view' })
     end,
   },
 
