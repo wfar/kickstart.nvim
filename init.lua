@@ -141,6 +141,9 @@ vim.o.timeoutlen = 300
 vim.o.splitright = true
 vim.o.splitbelow = true
 
+-- Configure fillchars for eob
+vim.o.fillchars = 'eob: '
+
 -- Sets how neovim will display certain whitespace characters in the editor.
 --  See `:help 'list'`
 --  and `:help 'listchars'`
@@ -1333,6 +1336,41 @@ require('lazy').setup({
       }
     end,
   },
+
+  -- {
+  --   'olimorris/codecompanion.nvim',
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim',
+  --   },
+  --   config = function()
+  --     require('codecompanion').setup {
+  --       strategies = {
+  --         chat = {
+  --           adapter = 'ollama',
+  --         },
+  --         inline = {
+  --           adapter = 'ollama',
+  --         },
+  --         cmd = {
+  --           adapter = 'ollama',
+  --         },
+  --       },
+  --     }
+  --   end,
+  --   opts = {
+  --     interactions = {
+  --       chat = {
+  --         adapter = 'ollama',
+  --         model = 'deepseek-coder',
+  --       },
+  --       cmd = {},
+  --     },
+  --     -- NOTE: The log_level is in `opts.opts`
+  --     opts = {
+  --       log_level = 'DEBUG',
+  --     },
+  --   },
+  -- },
 
   -- Add typescript tools for better ts tooling
   -- {
