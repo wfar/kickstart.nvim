@@ -1296,11 +1296,13 @@ require('lazy').setup({
       }
       -- Add Nvim Tree binding to toggle tree on/off
       vim.keymap.set('n', '<leader>tt', '<cmd>NvimTreeToggle<CR>', { desc = 'Toggle nvim tree' })
+      vim.keymap.set('n', '<leader>tf', '<cmd>NvimTreeFindFile<CR>', { desc = 'Toggle nvim tree find file' })
     end,
   },
 
   {
-    'sindrets/diffview.nvim',
+    'dlyongemallo/diffview.nvim',
+    version = '*',
     config = function()
       require('diffview').setup {
         vim.opt.fillchars:append { diff = '╱' }, -- change empty diff space from ---- to ////
@@ -1450,16 +1452,32 @@ require('lazy').setup({
   },
 
   -- -- add bufferline
-  -- {
-  --   'akinsho/bufferline.nvim',
-  --   version = '*',
-  --   dependencies = 'nvim-tree/nvim-web-devicons',
-  --   options = {
-  --     offsets = {
-  --       { filetype = 'NvimTree', text = 'File Explorer', text_align = 'center' },
-  --     },
-  --   },
-  -- },
+  {
+    'akinsho/bufferline.nvim',
+    version = '*',
+    dependencies = 'nvim-tree/nvim-web-devicons',
+    config = function()
+      require('bufferline').setup {
+        options = {
+          offsets = {
+            {
+              filetype = 'NvimTree',
+              text = 'File Explorer',
+              text_align = 'center',
+              separator = true,
+            },
+          },
+        },
+      }
+    end,
+    -- opts = {
+    --   options = {
+    --     offsets = {
+    --       { filetype = 'NvimTree', text = 'File Explorer', text_align = 'center' },
+    --     },
+    --   },
+    -- },
+  },
 
   -- add gitsigns
   {
